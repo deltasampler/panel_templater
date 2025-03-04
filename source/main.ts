@@ -6,7 +6,7 @@ import {cl_vec3} from "@cl/vec3";
 import {cl_mm_to_px} from "@cl/unit.ts";
 import {vec2_t} from "@cl/type.ts";
 import {UT, gs_object, gui_bool, gui_button, gui_canvas, gui_collapsing_header, gui_input_number, gui_render, gui_select, gui_slider_number, gui_text, gui_update, gui_window, gui_window_grid, gui_window_layout, unit} from "@gui/gui.ts";
-import {d2_aabb, d2_clear_color_vrgb, d2_init, d2_line, d2_mouse_pos, d2_polygon, d2_stroke} from "@engine/d2.ts";
+import {d2_aabb2, d2_clear_color_vec, d2_init, d2_line2, d2_mouse_pos, d2_polygon, d2_stroke_vec} from "@engine/d2.ts";
 import {io_init, io_kb_key_down, io_m_button_down, io_m_move, io_m_wheel_scroll, kb_event_t, m_event_t, m_wheel_event_t} from "@engine/io.ts";
 
 class polygon_t {
@@ -187,8 +187,8 @@ function reset() {
 
 function compute_intersections() {
     if (selected_polygon) {
+        d2_stroke_vec(selected_polygon_color, line_width_px);
         d2_polygon(selected_polygon.points);
-        d2_stroke(selected_polygon_color, line_width_px);
 
         if (config.mode == MODE.KNIFE) {
             intersections_left = polgon_line_intersections(selected_polygon.points, mouse, cl_rad(config.angle), -panel_margin_px / 2);
@@ -356,24 +356,24 @@ io_kb_key_down(function(event: kb_event_t): void {
 
 function render_knife(): void {
     if (intersections_left.length == 2 && intersections_right.length == 2) {
-        d2_line(intersections_left[0].point, intersections_left[1].point);
-        d2_stroke(knife_color, line_width_px);
-        d2_line(intersections_right[0].point, intersections_right[1].point);
-        d2_stroke(knife_color, line_width_px);
+        d2_stroke_vec(knife_color, line_width_px);
+        d2_line2(intersections_left[0].point, intersections_left[1].point);
+        d2_stroke_vec(knife_color, line_width_px);
+        d2_line2(intersections_right[0].point, intersections_right[1].point);
     }
 }
 
 function render(): void {
-    d2_clear_color_vrgb(clear_color);
+    d2_clear_color_vec(clear_color);
 
     for (const polygon of polygons) {
+        d2_stroke_vec(polygon_color, line_width_px);
         d2_polygon(polygon.points);
-        d2_stroke(polygon_color, line_width_px);
     }
 
     if (selected_polygon) {
+        d2_stroke_vec(selected_polygon_color, line_width_px);
         d2_polygon(selected_polygon.points);
-        d2_stroke(selected_polygon_color, line_width_px);
 
         if (config.mode == MODE.KNIFE) {
             render_knife();
@@ -382,22 +382,22 @@ function render(): void {
                 render_knife();
             } else {
                 if (anchor_point) {
-                    d2_line(anchor_point, mouse);
-                    d2_stroke(line_color, line_width_px);
+                    d2_stroke_vec(line_color, line_width_px);
+                    d2_line2(anchor_point, mouse);
                 }
             }
         } else if (config.mode == MODE.HALF_SPLITTER) {
             render_knife();
         } else if (config.mode == MODE.GRID_SNAPPER) {
-            d2_line(position_snapped, mouse)
-            d2_stroke(line_color, line_width_px);
+            d2_stroke_vec(line_color, line_width_px);
+            d2_line2(position_snapped, mouse)
             render_knife();
         }
     }
 
     if (selected_aabb) {
-        d2_aabb(selected_aabb.min, selected_aabb.max);
-        d2_stroke(aabb_color, line_width_px);
+        d2_stroke_vec(aabb_color, line_width_px);
+        d2_aabb2(selected_aabb.min, selected_aabb.max);
     }
 
     requestAnimationFrame(render)
