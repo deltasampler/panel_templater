@@ -1,9 +1,9 @@
-import {cl_atan2, cl_clamp, cl_floor, cl_rad} from "@cl/math.ts";
-import {cl_point_on_line, cl_line2_ab, cl_side_of_line} from "@cl/line2.ts";
+import {atan2, clamp, floor, rad} from "@cl/math.ts";
+import {point_on_line, line2_ab, side_of_line} from "@cl/line2.ts";
 import {polygon_from_aabb, polygon_point_inside, polygon_center, polygon_min_max, polgon_line_intersections, intersect_t} from "@cl/polygon.ts";
-import {cl_vec2, cl_vec2_add, cl_vec2_div_s, cl_vec2_len, cl_vec2_snap, cl_vec2_sub} from "@cl/vec2.ts";
-import {cl_vec3} from "@cl/vec3";
-import {cl_mm_to_px} from "@cl/unit.ts";
+import {vec2, vec2_add, vec2_div_s, vec2_len, vec2_snap, vec2_sub} from "@cl/vec2.ts";
+import {vec3} from "@cl/vec3";
+import {mm_to_px} from "@cl/unit.ts";
 import {vec2_t} from "@cl/type.ts";
 import {UT, gs_object, gui_bool, gui_button, gui_canvas, gui_collapsing_header, gui_input_number, gui_render, gui_select, gui_slider_number, gui_text, gui_update, gui_window, gui_window_grid, gui_window_layout, unit} from "@gui/gui.ts";
 import {d2_aabb2, d2_clear_color_vec, d2_init, d2_line2, d2_mouse_pos, d2_polygon, d2_stroke_vec} from "@engine/d2.ts";
@@ -38,16 +38,16 @@ const config = {
     snap_to_points: false
 }
 
-let width_px = cl_mm_to_px(config.width_mm, config.res_dpi)
-let height_px = cl_mm_to_px(config.height_mm, config.res_dpi)
-let page_margin_px = cl_mm_to_px(config.page_margin_mm, config.res_dpi)
-let panel_margin_px = cl_mm_to_px(config.panel_margin_mm, config.res_dpi)
-let line_width_px = cl_mm_to_px(config.line_width_mm, config.res_dpi)
+let width_px = mm_to_px(config.width_mm, config.res_dpi)
+let height_px = mm_to_px(config.height_mm, config.res_dpi)
+let page_margin_px = mm_to_px(config.page_margin_mm, config.res_dpi)
+let panel_margin_px = mm_to_px(config.panel_margin_mm, config.res_dpi)
+let line_width_px = mm_to_px(config.line_width_mm, config.res_dpi)
 let polygons: polygon_t[] = []
 let selected_polygon: polygon_t|null = null
 let intersections_right: intersect_t[] = []
 let intersections_left: intersect_t[] = [];
-let mouse = cl_vec2();
+let mouse = vec2();
 
 // anchor
 let min_anchor = Infinity
@@ -56,15 +56,15 @@ let start_point: vec2_t|null = null
 
 // grid snapper
 let selected_aabb: {min: vec2_t, max: vec2_t}|null = null
-let position_snapped = cl_vec2();
+let position_snapped = vec2();
 
 // colors
-const clear_color = cl_vec3(238, 238, 238);
-const polygon_color = cl_vec3(34, 34, 34);
-const selected_polygon_color = cl_vec3(125, 177, 255);
-const knife_color = cl_vec3(255, 197, 82);
-const line_color = cl_vec3(0, 255, 255);
-const aabb_color = cl_vec3(255, 0, 255);
+const clear_color = vec3(238, 238, 238);
+const polygon_color = vec3(34, 34, 34);
+const selected_polygon_color = vec3(125, 177, 255);
+const knife_color = vec3(255, 197, 82);
+const line_color = vec3(0, 255, 255);
+const aabb_color = vec3(255, 0, 255);
 
 const root = gui_window(null);
 gui_window_grid(
@@ -162,11 +162,11 @@ d2_init(canvas_el);
 io_init();
 
 function reset() {
-    width_px = cl_mm_to_px(config.width_mm, config.res_dpi);
-    height_px = cl_mm_to_px(config.height_mm, config.res_dpi);
-    page_margin_px = cl_mm_to_px(config.page_margin_mm, config.res_dpi);
-    panel_margin_px = cl_mm_to_px(config.panel_margin_mm, config.res_dpi);
-    line_width_px = cl_mm_to_px(config.line_width_mm, config.res_dpi);
+    width_px = mm_to_px(config.width_mm, config.res_dpi);
+    height_px = mm_to_px(config.height_mm, config.res_dpi);
+    page_margin_px = mm_to_px(config.page_margin_mm, config.res_dpi);
+    panel_margin_px = mm_to_px(config.panel_margin_mm, config.res_dpi);
+    line_width_px = mm_to_px(config.line_width_mm, config.res_dpi);
 
     canvas_el.width = width_px;
     canvas_el.height = height_px;
@@ -181,7 +181,7 @@ function reset() {
 
     polygons = [];
     polygons.push(
-        new polygon_t(polygon_from_aabb(cl_vec2(page_margin_px, page_margin_px), cl_vec2(width_px - page_margin_px, height_px - page_margin_px)))
+        new polygon_t(polygon_from_aabb(vec2(page_margin_px, page_margin_px), vec2(width_px - page_margin_px, height_px - page_margin_px)))
     );
 }
 
@@ -191,8 +191,8 @@ function compute_intersections() {
         d2_polygon(selected_polygon.points);
 
         if (config.mode == MODE.KNIFE) {
-            intersections_left = polgon_line_intersections(selected_polygon.points, mouse, cl_rad(config.angle), -panel_margin_px / 2);
-            intersections_right = polgon_line_intersections(selected_polygon.points, mouse, cl_rad(config.angle), panel_margin_px / 2);
+            intersections_left = polgon_line_intersections(selected_polygon.points, mouse, rad(config.angle), -panel_margin_px / 2);
+            intersections_right = polgon_line_intersections(selected_polygon.points, mouse, rad(config.angle), panel_margin_px / 2);
         } else if (config.mode == MODE.ANCHOR) {
             min_anchor = Infinity;
             anchor_point = null;
@@ -200,8 +200,8 @@ function compute_intersections() {
             for (let a = 0; a < selected_polygon.points.length; ++a) {
                 const p1 = selected_polygon.points[a];
                 const p2 = selected_polygon.points[(a + 1) % selected_polygon.points.length];
-                const tp = config.snap_to_points ? p1 : cl_point_on_line(cl_line2_ab(p1, p2), mouse);
-                const l = cl_vec2_len(cl_vec2_sub(tp, mouse));
+                const tp = config.snap_to_points ? p1 : point_on_line(line2_ab(p1, p2), mouse);
+                const l = vec2_len(vec2_sub(tp, mouse));
 
                 if (l < min_anchor) {
                     min_anchor = l;
@@ -210,23 +210,23 @@ function compute_intersections() {
             }
 
             if (start_point) {
-                const d = cl_vec2_sub(start_point, mouse);
-                const angle = cl_atan2(d[1], d[0]);
+                const d = vec2_sub(start_point, mouse);
+                const angle = atan2(d[1], d[0]);
                 intersections_left = polgon_line_intersections(selected_polygon.points, start_point, angle, -panel_margin_px / 2);
                 intersections_right = polgon_line_intersections(selected_polygon.points, start_point, angle, panel_margin_px / 2);
             }
         } else if (config.mode == MODE.HALF_SPLITTER) {
             const center = polygon_center(selected_polygon.points);
-            intersections_left = polgon_line_intersections(selected_polygon.points, center, cl_rad(config.angle), -panel_margin_px / 2);
-            intersections_right = polgon_line_intersections(selected_polygon.points, center, cl_rad(config.angle), panel_margin_px / 2);
+            intersections_left = polgon_line_intersections(selected_polygon.points, center, rad(config.angle), -panel_margin_px / 2);
+            intersections_right = polgon_line_intersections(selected_polygon.points, center, rad(config.angle), panel_margin_px / 2);
         } else if (config.mode == MODE.GRID_SNAPPER) {
             const minmax = selected_aabb || polygon_min_max(selected_polygon.points);
-            const size = cl_vec2_sub(minmax.max, minmax.min);
-            const relative =cl_vec2_sub(mouse, minmax.min);
-            position_snapped = cl_vec2_add(cl_vec2_snap(relative, cl_vec2_div_s(size, config.grid_div)), minmax.min);
+            const size = vec2_sub(minmax.max, minmax.min);
+            const relative =vec2_sub(mouse, minmax.min);
+            position_snapped = vec2_add(vec2_snap(relative, vec2_div_s(size, config.grid_div)), minmax.min);
 
-            intersections_left = polgon_line_intersections(selected_polygon.points, position_snapped, cl_rad(config.angle), -panel_margin_px / 2);
-            intersections_right = polgon_line_intersections(selected_polygon.points, position_snapped, cl_rad(config.angle), panel_margin_px / 2);
+            intersections_left = polgon_line_intersections(selected_polygon.points, position_snapped, rad(config.angle), -panel_margin_px / 2);
+            intersections_right = polgon_line_intersections(selected_polygon.points, position_snapped, rad(config.angle), panel_margin_px / 2);
         }
     }
 }
@@ -242,10 +242,10 @@ function cut(): void {
 
         for (let a = 0; a < selected_polygon.points.length; ++a) {
             const point = selected_polygon.points[a];
-            const l1 = cl_side_of_line(cl_line2_ab(intersections_left[0].point, intersections_left[1].point), point);
-            const l2 = cl_side_of_line(cl_line2_ab(intersections_right[0].point, intersections_right[1].point), point);
+            const l1 = side_of_line(line2_ab(intersections_left[0].point, intersections_left[1].point), point);
+            const l2 = side_of_line(line2_ab(intersections_right[0].point, intersections_right[1].point), point);
 
-            if (cl_floor(l1 + l2) > panel_margin_px) {
+            if (floor(l1 + l2) > panel_margin_px) {
                 if (l1 < l2) {
                     points_left.push(point);
                 } else {
@@ -309,7 +309,7 @@ io_m_button_down(function(): void {
 
 io_m_wheel_scroll(function(event: m_wheel_event_t): void {
     if (config.mode != MODE.SELECT) {
-        config.angle = cl_clamp(config.angle + event.yd * 5, -180.0, 180.0);
+        config.angle = clamp(config.angle + event.yd * 5, -180.0, 180.0);
 
         compute_intersections();
     }
