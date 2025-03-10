@@ -1,7 +1,7 @@
 import {atan2, clamp, floor, rad} from "@cl/math.ts";
 import {point_on_line, line2_ab, side_of_line} from "@cl/line2.ts";
 import {polygon_from_aabb, polygon_point_inside, polygon_center, polygon_min_max, polgon_line_intersections, intersect_t} from "@cl/polygon.ts";
-import {vec2, vec2_add, vec2_div_s, vec2_len, vec2_snap, vec2_sub} from "@cl/vec2.ts";
+import {vec2, vec2_add, vec2_add1, vec2_divs, vec2_divs1, vec2_len, vec2_snap, vec2_sub, vec2_sub1} from "@cl/vec2.ts";
 import {vec3} from "@cl/vec3";
 import {mm_to_px} from "@cl/unit.ts";
 import {vec2_t} from "@cl/type.ts";
@@ -201,7 +201,7 @@ function compute_intersections() {
                 const p1 = selected_polygon.points[a];
                 const p2 = selected_polygon.points[(a + 1) % selected_polygon.points.length];
                 const tp = config.snap_to_points ? p1 : point_on_line(line2_ab(p1, p2), mouse);
-                const l = vec2_len(vec2_sub(tp, mouse));
+                const l = vec2_len(vec2_sub1(tp, mouse));
 
                 if (l < min_anchor) {
                     min_anchor = l;
@@ -210,7 +210,7 @@ function compute_intersections() {
             }
 
             if (start_point) {
-                const d = vec2_sub(start_point, mouse);
+                const d = vec2_sub1(start_point, mouse);
                 const angle = atan2(d[1], d[0]);
                 intersections_left = polgon_line_intersections(selected_polygon.points, start_point, angle, -panel_margin_px / 2);
                 intersections_right = polgon_line_intersections(selected_polygon.points, start_point, angle, panel_margin_px / 2);
@@ -221,9 +221,9 @@ function compute_intersections() {
             intersections_right = polgon_line_intersections(selected_polygon.points, center, rad(config.angle), panel_margin_px / 2);
         } else if (config.mode == MODE.GRID_SNAPPER) {
             const minmax = selected_aabb || polygon_min_max(selected_polygon.points);
-            const size = vec2_sub(minmax.max, minmax.min);
-            const relative =vec2_sub(mouse, minmax.min);
-            position_snapped = vec2_add(vec2_snap(relative, vec2_div_s(size, config.grid_div)), minmax.min);
+            const size = vec2_sub1(minmax.max, minmax.min);
+            const relative =vec2_sub1(mouse, minmax.min);
+            position_snapped = vec2_add1(vec2_snap(relative, vec2_divs1(size, config.grid_div), vec2()), minmax.min);
 
             intersections_left = polgon_line_intersections(selected_polygon.points, position_snapped, rad(config.angle), -panel_margin_px / 2);
             intersections_right = polgon_line_intersections(selected_polygon.points, position_snapped, rad(config.angle), panel_margin_px / 2);
