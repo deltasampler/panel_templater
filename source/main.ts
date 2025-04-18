@@ -1,10 +1,9 @@
-import {atan2, clamp, floor, rad} from "@cl/math.ts";
-import {point_on_line, line2_ab, side_of_line} from "@cl/line2.ts";
-import {polygon_from_aabb, polygon_point_inside, polygon_center, polygon_min_max, polgon_line_intersections, intersect_t} from "@cl/polygon.ts";
-import {vec2, vec2_add, vec2_add1, vec2_divs, vec2_divs1, vec2_len, vec2_snap, vec2_sub, vec2_sub1} from "@cl/vec2.ts";
-import {vec3} from "@cl/vec3";
+import {atan2, clamp, floor, rad} from "@cl/math/math.ts";
+import {point_on_line, line2_ab, side_of_line} from "@cl/collision/line2.ts";
+import {polygon_from_aabb, polygon_point_inside, polygon_center, polygon_min_max, polgon_line_intersections, intersect_t} from "@cl/collision/polygon.ts";
+import {vec2, vec2_add1, vec2_divs1, vec2_len, vec2_snap, vec2_sub1, vec2_t} from "@cl/math/vec2.ts";
+import {vec3} from "@cl/math/vec3.ts";
 import {mm_to_px} from "@cl/unit.ts";
-import {vec2_t} from "@cl/type.ts";
 import {UT, gs_object, gui_bool, gui_button, gui_canvas, gui_collapsing_header, gui_input_number, gui_render, gui_select, gui_slider_number, gui_text, gui_update, gui_window, gui_window_grid, gui_window_layout, unit} from "@gui/gui.ts";
 import {d2_aabb2, d2_clear_color_vec, d2_init, d2_line2, d2_mouse_pos, d2_polygon, d2_stroke_vec} from "@engine/d2.ts";
 import {io_init, io_kb_key_down, io_m_button_down, io_m_move, io_m_wheel_scroll, kb_event_t, m_event_t, m_wheel_event_t} from "@engine/io.ts";
